@@ -42,6 +42,11 @@ extension Config {
         message.fromEmail = email?.from
         message.toEmail = email?.target
         message.subject = email?.title
+        let body = self.body()
+        if body == nil {
+            return
+        }
+        
         let messagePart = [kSKPSMTPPartContentTypeKey: "text/plain; charset=UTF-8", kSKPSMTPPartMessageKey: "body"] as [String : Any]
         message.parts = [messagePart]
         message.delegate = self
@@ -52,7 +57,13 @@ extension Config {
         let url = URL(string: (self.http?.host ?? ""))
         let request =  NSMutableURLRequest(url: url!)
         request.httpMethod = "POST"
-        URLSession.shared.uploadTask(with: request as URLRequest, fromFile: url!) { (data , response, error) in
+        
+        let fileUrl = zip()
+        if fileUrl == nil {
+            return
+        }
+        
+        URLSession.shared.uploadTask(with: request as URLRequest, fromFile: fileUrl!) { (data , response, error) in
             let httpResponse = response as? HTTPURLResponse
             if httpResponse?.statusCode ?? 0 == 200 {
                 self.removeAllFile()
@@ -68,12 +79,12 @@ extension Config {
 
 extension Config {
     /// 获取所有的内容拼接
-    fileprivate func body() -> String{
+    fileprivate func body() -> String?{
         return ""
     }
     /// 获取压缩后的路径
-    fileprivate func zip() -> String {
-        return ""
+    fileprivate func zip() -> URL? {
+        return URL(string: "")
     }
     
     fileprivate func removeAllFile() {

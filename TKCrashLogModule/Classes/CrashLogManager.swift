@@ -16,9 +16,7 @@ public class CrashLogManager {
     init() {
         installSignalHandler()
         installUncaughtExceptionHander()
-        if checkUnSend() {
-            upload()
-        }
+        upload()
     }
 }
 
@@ -65,10 +63,6 @@ extension CrashLogManager {
     // 系统异常捕获
     fileprivate func installUncaughtExceptionHander() {
         InstallUncaughtHandler()
-    }
-    /// 检测是否有未上传的
-    fileprivate func checkUnSend() ->Bool {
-        return false
     }
     fileprivate func upload() {
         self.config.upload()
