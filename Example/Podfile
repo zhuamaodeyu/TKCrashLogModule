@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'TKCrashLogModule_Example' do
+  pod 'TKCrashLogModule', :path => '../'
+
+  target 'TKCrashLogModule_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
