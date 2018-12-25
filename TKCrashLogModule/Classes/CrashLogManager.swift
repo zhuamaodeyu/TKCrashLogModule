@@ -14,8 +14,8 @@ public class CrashLogManager {
     fileprivate var block:(()->Void)?
 
     init() {
-        installSignalHandler()
-        installUncaughtExceptionHander()
+        registerSignalHandler()
+        registerUncaughtExceptionHander()
         upload()
     }
 }
@@ -56,13 +56,12 @@ extension CrashLogManager {
 
 extension CrashLogManager {
     // 信号量拦截
-    fileprivate func installSignalHandler() {
-        // 调用C 代码
-        InstallSignalHander()
+    fileprivate func registerSignalHandler() {
+        installSignalHandler()
     }
     // 系统异常捕获
-    fileprivate func installUncaughtExceptionHander() {
-        InstallUncaughtHandler()
+    fileprivate func registerUncaughtExceptionHander() {
+        installUncaughtException()
     }
     fileprivate func upload() {
         self.config.upload()

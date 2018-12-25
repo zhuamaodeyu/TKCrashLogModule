@@ -11,5 +11,4 @@
 
 
 @end
-void InstallSignalHander(void);
-void InstallUncaughtHandler(void);
+long calculate(void);

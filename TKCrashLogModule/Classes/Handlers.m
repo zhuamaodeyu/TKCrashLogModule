@@ -8,22 +8,44 @@
 #import "Handlers.h"
 #include <libkern/OSAtomic.h>
 #include <execinfo.h>
+#include <mach-o/dyld.h>
+
 
 @implementation Handlers
 
-+(NSString *)dateString {
-    NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
-    [formatter setDateFormat:@"YYYY/MM/dd hh:mm:ss SS"];
-    return  [formatter stringFromDate:[NSDate date]];
-}
-+ (NSString *)path {
-    NSString *path = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true) firstObject];
-    return path;
-}
 
 @end
 
+// 获取偏移量地址
+long calculate(void)
+{
+    long slide = 0;
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        if (_dyld_get_image_header(i)->filetype == MH_EXECUTE) {
+            slide = _dyld_get_image_vmaddr_slide(i);
+            break;
+        }
+    }
+    return slide;
+}
 
+
+//NSString *executableUUID()
+//{
+//    const uint8_t *command = (const uint8_t *)(&_mh_execute_header + 1);
+//    for (uint32_t idx = 0; idx cmd == LC_UUID) {
+//        command += sizeof(struct load_command);
+//        return [NSString stringWithFormat:@"%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+//                command[0], command[1], command[2], command[3],
+//                command[4], command[5],
+//                command[6], command[7],
+//                command[8], command[9],
+//                command[10], command[11], command[12], command[13], command[14], command[15]];
+//    } else {
+//        command += ((const struct load_command *)command)->cmdsize;
+//    }
+//    return  nil;
+//}
 
 void SignalHandler(int signal) {
     NSMutableString *string = [[NSMutableString alloc] init];
@@ -33,54 +55,4 @@ void SignalHandler(int signal) {
     for (i = 0; i <frames; ++i) {
         [string appendFormat:@"%s\n", strs[i]];
     }
-}
-
-/**
- 1. Signal
- 2. Exception
- 
- */
-void UncaughtHandler(NSException *exception) {
-    
-    
-    // 堆栈信息
-    NSArray *stack = [exception callStackSymbols];
-    
-    NSDictionary *userInfo = [exception userInfo];
-    
-    NSArray *stackAddress = [exception callStackReturnAddresses];
-    
-    // 原因
-    NSString *reason = [exception reason];
-    
-    // 名字
-    NSString *name = [exception name];
-    
-    // date
-    
-    
-    // 时间
-    NSLog(@"%@------%@------%@------%@------%@",reason, name, stack, userInfo,stackAddress);
-}
-
-void InstallSignalHander() {
-//    本信号在用户终端连接(正常或非正常)结束时发出, 通常是在终端的控制进程结束时, 通知同一session内的各个作业
-    signal(SIGHUP, SignalHandler);
-//    程序终止(interrupt)信号, 在用户键入INTR字符(通常是Ctrl-C)时发出，用于通知前台进程组终止进程。
-    signal(SIGINT, SignalHandler);
-//    类似于一个程序错误信号。
-    signal(SIGQUIT, SignalHandler);
-    
-//    调用abort函数生成的信号。
-    signal(SIGABRT, SignalHandler);
-    signal(SIGILL, SignalHandler);
-    signal(SIGSEGV, SignalHandler);
-    
-    signal(SIGFPE, SignalHandler);
-    signal(SIGBUS, SignalHandler);
-    signal(SIGPIPE, SignalHandler);
-}
-
-void InstallUncaughtHandler() {
-    NSSetUncaughtExceptionHandler(&UncaughtHandler);
 }

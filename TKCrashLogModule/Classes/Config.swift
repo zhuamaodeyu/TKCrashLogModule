@@ -68,13 +68,8 @@ extension Config {
             if httpResponse?.statusCode ?? 0 == 200 {
                 self.removeAllFile()
             }
-        }
-        URLSession.shared.uploadTask(with: request as URLRequest, fromFile: URL(string: "")!) { (data , response, error) in
-            
         }.resume()
-        
     }
-    
 }
 
 extension Config {
