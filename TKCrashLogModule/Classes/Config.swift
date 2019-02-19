@@ -7,29 +7,42 @@
 
 import Foundation
 import skpsmtpmessage
+import  ZipArchive
 
+fileprivate let timerName = "upload_timer"
 class Config {
     fileprivate var email: Email?
     fileprivate var http: Http?
+    
     func config(email: Email?,http: Http?)  {
-        if email != nil {
-            self.email = email
+        if let e = email {
+            self.email = e
         }
-        if http != nil {
-            self.http = http
+        if let h = http {
+            self.http = h
         }
     }
     
-    func  upload()  {
+    func start()  {
+        if GCDTimer.shared.isExistTimer(WithTimerName: timerName) {
+            return
+        }
+        GCDTimer.shared.scheduledDispatchTimer(WithTimerName: timerName, timeInterval: 30 * 60, queue: DispatchQueue.global(), repeats: true, action: {[weak self] in
+            self?.upload()
+        })
+    }
+    
+    fileprivate func upload() {
         if email != nil {
             sendEmail()
-            return
         }
         if http != nil  {
             uploadFile()
         }
     }
+    
 }
+
 
 extension Config {
     fileprivate func sendEmail() {
@@ -42,6 +55,7 @@ extension Config {
         message.fromEmail = email?.from
         message.toEmail = email?.target
         message.subject = email?.title
+        // read content
         let body = self.body()
         if body == nil {
             return
@@ -66,9 +80,23 @@ extension Config {
         URLSession.shared.uploadTask(with: request as URLRequest, fromFile: fileUrl!) { (data , response, error) in
             let httpResponse = response as? HTTPURLResponse
             if httpResponse?.statusCode ?? 0 == 200 {
-                self.removeAllFile()
+                
             }
         }.resume()
+    }
+}
+
+extension Config: SKPSMTPMessageDelegate {
+    func messageSent(_ message: SKPSMTPMessage!) {
+        // 是否要删除文件
+        if self.http != nil  {
+            uploadFile()
+        }else {
+//            removeAllFile()
+        }
+    }
+    func messageFailed(_ message: SKPSMTPMessage!, error: Error!) {
+        debugPrint("sending email failed")
     }
 }
 
@@ -81,36 +109,16 @@ extension Config {
     fileprivate func zip() -> URL? {
         return URL(string: "")
     }
-    
-    fileprivate func removeAllFile() {
-        
-    }
 }
 
-
-extension Config: SKPSMTPMessageDelegate {
-    func messageSent(_ message: SKPSMTPMessage!) {
-        // 是否要删除文件
-        if self.http != nil  {
-            uploadFile()
-        }else {
-            removeAllFile()
-        }
-    }
-    func messageFailed(_ message: SKPSMTPMessage!, error: Error!) {
-        debugPrint("sending email failed")
-    }
-}
-
-
-class Email {
-    var title: String
-    var target: String
-    var from: String
-    var host: String
-    var requiresAuth: Bool
-    var password: String
-    var isSecure: Bool
+struct Email {
+    fileprivate var title: String
+    fileprivate var target: String
+    fileprivate var from: String
+    fileprivate var host: String
+    fileprivate var requiresAuth: Bool
+    fileprivate var password: String
+    fileprivate var isSecure: Bool
     init(title: String, target: String, from: String,host: String,requiresAuth: Bool,password: String,isSecure: Bool) {
         self.title = title
         self.target = target
@@ -122,11 +130,16 @@ class Email {
     }
 }
 
-class Http {
-    var host: String
-    init(host: String) {
+struct Http {
+    fileprivate var host: String
+    fileprivate var password: String
+    fileprivate var isSecure: Bool
+    init(host: String, password: String, isSecure: Bool) {
         self.host = host
+        self.isSecure = isSecure
+        self.password = password
     }
 }
+
 
 

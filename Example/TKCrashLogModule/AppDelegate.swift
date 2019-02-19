@@ -17,7 +17,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 //        CrashLogManager.sharedManager.register(title: "", target: "", from: "", host: "", requiresAuth: true, password: "", isSecure: true)
+        CrashLogManager.sharedManager.register(title: "", target: "", from: "", host: "", requiresAuth: false, password: "", isSecure: true) {
+            
+        }
 //        CrashLogManager.sharedManager.register(host: "http://xxxxx.com")
+        
         return true
     }
 

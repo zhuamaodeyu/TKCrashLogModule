@@ -12,19 +12,11 @@ public class CrashLogManager {
     public static let sharedManager = CrashLogManager()
     fileprivate var config = Config()
     fileprivate var block:(()->Void)?
-
     init() {
         registerSignalHandler()
         registerUncaughtExceptionHander()
-        upload()
     }
 }
-
-/**
- config :
-    1. 邮件  或者 HTTP
-    2.
- */
 
 extension CrashLogManager {
     
@@ -42,15 +34,17 @@ extension CrashLogManager {
         let email = Email(title: title, target: target, from: from, host: host, requiresAuth: requiresAuth, password: password, isSecure: isSecure)
         self.config.config(email: email, http: nil)
         self.block = block
+        self.begin()
     }
     
    /// register
    ///
    /// - Parameter host: HTTP 文件上传服务器地址
-   public func register (host: String,block:(()->Void)?) {
-        let http = Http(host: host)
+   public func register(host: String,password: String,isSecure: Bool,block:(()->Void)?) {
+        let http = Http.init(host: host, password: password, isSecure: isSecure)
         self.config.config(email: nil , http: http)
         self.block = block
+        self.begin()
     }
 }
 
@@ -63,10 +57,10 @@ extension CrashLogManager {
     fileprivate func registerUncaughtExceptionHander() {
         installUncaughtException()
     }
-    fileprivate func upload() {
-        self.config.upload()
+    /// 开启上传
+    fileprivate func begin() {
+        self.config.start()
     }
-    
 }
 
 
