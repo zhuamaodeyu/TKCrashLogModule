@@ -30,8 +30,8 @@ TODO: Add long description of the pod here.
 
   s.ios.deployment_target = '8.0'
 
-  s.source_files = 'TKCrashLogModule/Classes/**/*'
-  
+#  s.source_files = 'TKCrashLogModule/Classes/**/*'
+
   # s.resource_bundles = {
   #   'TKCrashLogModule' => ['TKCrashLogModule/Assets/*.png']
   # }
@@ -39,6 +39,18 @@ TODO: Add long description of the pod here.
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
   # s.dependency 'AFNetworking', '~> 2.3'
+
+  s.default_subspec = 'Module'
+
+  s.subspec 'Core' do |ss|
+        ss.source_files = 'TKCrashLogModule/Classes/Core/**/*'
+  end
+
+  s.subspec 'Module' do |ss|
+      ss.source_files = 'TKCrashLogModule/Classes/**/*'
+  end
+
+
     s.dependency 'skpsmtpmessage'
     s.dependency 'ZipArchive'
 end
