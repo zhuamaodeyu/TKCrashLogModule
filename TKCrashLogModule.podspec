@@ -50,7 +50,6 @@ TODO: Add long description of the pod here.
       ss.source_files = 'TKCrashLogModule/Classes/**/*'
   end
 
-
     s.dependency 'skpsmtpmessage'
     s.dependency 'ZipArchive'
 end

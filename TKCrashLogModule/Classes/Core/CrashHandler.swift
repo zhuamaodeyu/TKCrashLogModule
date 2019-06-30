@@ -10,7 +10,6 @@ import libkern
 import MachO
 import Darwin
 
-// 此处不能写在任何  class truct 中
 
 // MARK: - register
 func installUncaughtException() {
