@@ -42,8 +42,9 @@ extension ViewController {
         
     }
     @objc fileprivate func buttonAcion2() {
+        // 此处在 debug 模式无法处理，请在真机上运行处理  
         let string: String? = nil
-        debugPrint("\(string!)")
+        print("\(string!)")
     }
 }
 

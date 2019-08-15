@@ -51,5 +51,5 @@ TODO: Add long description of the pod here.
   end
 
     s.dependency 'skpsmtpmessage'
-    s.dependency 'ZipArchive'
+    s.dependency 'Zip'
 end

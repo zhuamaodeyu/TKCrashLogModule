@@ -7,18 +7,30 @@
 
 import Foundation
 
+public typealias Compaltion = (_ result: Bool, _ err: String?)-> Void
 
-public class CrashLogManager {
-    public static let sharedManager = CrashLogManager()
-    fileprivate var config = Config()
-    fileprivate var block:(()->Void)?
+public class TKCrashLogManager {
+    public static let intance = TKCrashLogManager()
+
+    private var config:Upload?
+    private var emailBlock:Compaltion?
+    private var httpBlock:Compaltion?
+
     init() {
         registerSignalHandler()
         registerUncaughtExceptionHander()
+        config = Upload.init({ [weak self](type,result, err) in
+            switch type {
+            case .email:
+                self?.emailBlock?(result, err)
+            case .http:
+                self?.httpBlock?(result,err)
+            }
+        })
     }
 }
 
-extension CrashLogManager {
+extension TKCrashLogManager {
     
    /// register
    ///
@@ -30,36 +42,38 @@ extension CrashLogManager {
    ///   - requiresAuth: 是否 auth
    ///   - password: 发送者邮箱密码
    ///   - isSecure: 是否加密
-    public func register(title: String, target: String, from: String,host: String,requiresAuth: Bool,password: String,isSecure: Bool, block:(()->Void)?) {
-        let email = Email(title: title, target: target, from: from, host: host, requiresAuth: requiresAuth, password: password, isSecure: isSecure)
-        self.config.config(email: email, http: nil)
-        self.block = block
+    public func register(email title: String, target: String, from: String,host: String,requiresAuth: Bool,password: String,isSecure: Bool,zipPassword:String? = nil, complation:Compaltion?) {
+        let email = Email(title: title, target: target, from: from, host: host, requiresAuth: requiresAuth, password: password, isSecure: isSecure, zipPassword: zipPassword)
+        self.config?.config(email: email)
+        self.emailBlock = complation
         self.begin()
     }
     
    /// register
    ///
    /// - Parameter host: HTTP 文件上传服务器地址
-   public func register(host: String,password: String,isSecure: Bool,block:(()->Void)?) {
-        let http = Http.init(host: host, password: password, isSecure: isSecure)
-        self.config.config(email: nil , http: http)
-        self.block = block
+    public func register(host: String,zipPassword: String?,complation:Compaltion?) {
+        let http = Http.init(host: host, zipPassword: zipPassword)
+        self.config?.config(http: http)
+        self.httpBlock = complation
         self.begin()
     }
 }
 
-extension CrashLogManager {
-    // 信号量拦截
-    fileprivate func registerSignalHandler() {
+
+// MARK: - private method
+extension TKCrashLogManager {
+
+    private func registerSignalHandler() {
         installSignalHandler()
     }
-    // 系统异常捕获
-    fileprivate func registerUncaughtExceptionHander() {
+
+    private func registerUncaughtExceptionHander() {
         installUncaughtException()
     }
-    /// 开启上传
-    fileprivate func begin() {
-        self.config.start()
+
+    private func begin() {
+        self.config?.start()
     }
 }
 

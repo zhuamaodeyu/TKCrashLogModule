@@ -57,14 +57,15 @@ func SignalHandler(signal: Int32) -> Void {
     var string = String()
     string += "TKCrashLogModule: \n"
     string += "Stack:\n"
-    string += "=================begin========\(Utils.dateString())========================="
+    string += "=================begin========\(Utils.dateString())=========================\n"
+    string += "=============================\(Utils.identifity())==========================\n"
     string = string.appendingFormat("Address:0x%0x\r\n", calculate())
     for symbol  in Thread.callStackSymbols {
         string = string.appendingFormat("%@\r", symbol)
     }
-    string += "=================end========\(Utils.dateString())============================"
+    string += "\n=================end========\(Utils.dateString())============================\n"
     // TODO: 写入文件
-    Utils.save(type: .signal, message: string)
+    Utils.init()?.save(type: .signal, message: string)
     // 终止程序
     exit(signal)
 }
@@ -77,6 +78,7 @@ func UncaughtExceptionHandler(exception: NSException) {
     
     var string = String()
     string += "======================\(Utils.dateString())==============================\n"
+    string += "=============================\(Utils.identifity())==========================\n"
     string += "Stack:\n"
     string = string.appendingFormat("address:0x%0x\r\n", calculate())
     string += "name: \(name.rawValue)  \n"
@@ -85,10 +87,10 @@ func UncaughtExceptionHandler(exception: NSException) {
     if userInfo != nil  {
         string += "userInfo: \(String(describing: userInfo))  \n"
     }
-    string += "=================end========\(Utils.dateString())============================"
+    string += "\n=================end========\(Utils.dateString())============================\n"
     
     // TODO: 写入文件
-    Utils.save(type: .exception, message: string)
+    Utils.init()?.save(type: .exception, message: string)
 }
 
 
